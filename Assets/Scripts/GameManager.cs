@@ -10,7 +10,7 @@ public class GameManager : MonoBehaviour
     {
         get
         {
-            if(instance == null)
+            if (instance == null)
             {
                 instance = new GameManager();
             }
@@ -18,6 +18,9 @@ public class GameManager : MonoBehaviour
         }
     }
     #endregion
+
+    public UpgradeSystem upgradeSystem;
+
     void Awake()
     {
         if (instance == null)
@@ -34,5 +37,8 @@ public class GameManager : MonoBehaviour
     public Action GameStart;
     public Action GameEnd;
     public int StageLevel;
+
+
+    public int follwerCount;
 
 }
