@@ -44,6 +44,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b0da667c9b1c64b4a9aac3b2a1ba0081, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  option: 1
   title: "\uB354 \uBE60\uB974\uAC8C \uBA39\uC5B4"
   description: "\uBA39\uB294 \uC18D\uB3C4\uAC00 \uBE68\uB77C\uC9D1\uB2C8\uB2E4. "
   icon: {fileID: 4302351710681159231, guid: 4e9b2ad770a2d43d2aced7ef2ccd72a6, type: 3}

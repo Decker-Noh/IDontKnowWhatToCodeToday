@@ -30,7 +30,7 @@ public class Spawner : MonoBehaviour
     }
     void MonsterSpawn()
     {
-        GameObject enemyObject = Instantiate(enemyPrefab);
+        GameObject enemyObject = PoolingManager.Instantiate(enemyPrefab);
         enemyObject.transform.position = spawnPoints[Random.Range(0, spawnPoints.Length)].transform.position;
         var enemy = enemyObject.GetComponent<Enemy>();
 

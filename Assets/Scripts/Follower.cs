@@ -33,7 +33,7 @@ public class Follower : MonoBehaviour
             // 남아있는 거리에 비례한 가속도를 적용
             float dynamicSpeed = followSpeed * (1 + distanceToTarget * 0.1f);
 
-            rigid?.MovePosition(rigid.position + dirVec.normalized * dynamicSpeed * PlayerStats.moveSpeed * Time.fixedDeltaTime);
+            rigid?.MovePosition(rigid.position + dirVec.normalized * dynamicSpeed * PlayerStats.MoveSpeed * Time.fixedDeltaTime);
         }
     }
 

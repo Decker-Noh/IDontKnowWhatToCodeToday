@@ -5,6 +5,7 @@ using System.Linq;
 using UnityEngine;
 using TMPro;
 using DG.Tweening;
+using UnityEngine.Rendering.Universal;
 
 public class Player : MonoBehaviour
 {
@@ -12,7 +13,8 @@ public class Player : MonoBehaviour
     public Vector2 currentGrid;
     public Action EatAttack;
     public float speed;
-    Rigidbody2D rigid;
+    public Rigidbody2D rigid { get; private set; }
+    public Light2D light2D { get; private set; }
     public RaycastHit2D[] targets;
     public float scanRange;
     public LayerMask targetLayer;
@@ -70,10 +72,13 @@ public class Player : MonoBehaviour
     {
         audioSource = GetComponent<AudioSource>();
         rigid = GetComponent<Rigidbody2D>();
+        light2D = GetComponent<Light2D>();
         EatAttack += () => { Debug.Log("Eat!!"); };
         EatAttack += ManuallyAttack;
         OnChangedLevel += OnChangedLevelEvent;
         PlayerLevel = 1;
+
+        InitPlayerStats();
     }
 
     void Update()
@@ -103,7 +108,7 @@ public class Player : MonoBehaviour
     }
     void FixedUpdate()
     {
-        Vector2 nextVec = inputVec.normalized * speed * PlayerStats.moveSpeed * Time.fixedDeltaTime;
+        Vector2 nextVec = inputVec.normalized * speed * PlayerStats.MoveSpeed * Time.fixedDeltaTime;
         rigid.MovePosition(rigid.position + nextVec);
 
 
@@ -157,7 +162,7 @@ public class Player : MonoBehaviour
     public void SummonExecute(int level)
     {
         PlayRandomEatSound();
-        GameObject summonObject = Instantiate(summonPrefab);
+        GameObject summonObject = PoolingManager.Instantiate(summonPrefab);
         if (Summons.Count == 0)
         {
             summonObject.transform.position = transform.position;
@@ -220,8 +225,6 @@ public class Player : MonoBehaviour
             {
                 item.Effect();
             }
-
-
         }
     }
 
@@ -270,7 +273,7 @@ public class Player : MonoBehaviour
     {
         for (int i = 0; i < byeSummonList.Count; i++)
         {
-            GameObject enemyObject = Instantiate(enemyObjectPrefab);
+            GameObject enemyObject = PoolingManager.Instantiate(enemyObjectPrefab);
             var byeSummonObject = byeSummonList[i];
             var enemy = enemyObject.GetComponent<Enemy>();
 
@@ -282,7 +285,7 @@ public class Player : MonoBehaviour
                 enemyObject.transform.position = byeSummonObject.transform.position;
 
                 Summons.Remove(byeSummonObject);
-                Destroy(byeSummonObject);
+                PoolingManager.Destroy(byeSummonObject);
             }
         }
     }
@@ -358,7 +361,7 @@ public class Player : MonoBehaviour
     {
         PlayerLevel -= summon.Level;
         Summons.Remove(summon.gameObject);
-        Destroy(summon.gameObject);
+        PoolingManager.Destroy(summon.gameObject);
     }
 
 
@@ -376,6 +379,20 @@ public class Player : MonoBehaviour
         audioSource.clip = currentClip;
     }
 
+    void InitPlayerStats()
+    {
+        PlayerStats.OriginalSpeed = speed;
+        PlayerStats.OriginVisibleRange = light2D.pointLightInnerRadius;
+        Debug.Log(light2D.pointLightInnerRadius);
+        PlayerStats.visibleRangeChange += ChangeVisibleRange;
+    }
+
+    void ChangeVisibleRange()
+    {
+        Debug.Log(PlayerStats.OriginVisibleRange);
+        light2D.pointLightInnerRadius = PlayerStats.OriginVisibleRange + PlayerStats.AddedVisibleRange*.1f;
+        light2D.pointLightOuterRadius = light2D.pointLightInnerRadius*2;
+    }
 
     void TryEatEffect()
     {

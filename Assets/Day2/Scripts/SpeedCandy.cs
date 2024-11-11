@@ -14,7 +14,7 @@ public class SpeedCandy : Item
 
         if (speedBoostCoroutine != null)
         {
-            PlayerStats.moveSpeed = PlayerStats.originalSpeed;
+            PlayerStats.MoveSpeed = PlayerStats.OriginalSpeed;
             StopCoroutine(speedBoostCoroutine);
         }
 
@@ -35,18 +35,18 @@ public class SpeedCandy : Item
 
     private IEnumerator SpeedBoostRoutine()
     {
-        PlayerStats.moveSpeed = boostedSpeed;
+        PlayerStats.MoveSpeed = boostedSpeed;
         yield return new WaitForSeconds(speedBoostDuration);
-        PlayerStats.moveSpeed = PlayerStats.originalSpeed;
+        PlayerStats.MoveSpeed = PlayerStats.OriginalSpeed;
         speedBoostCoroutine = null;
         Destroy(gameObject, 1);
     }
 
     private IEnumerator SlowBoostRoutine()
     {
-        PlayerStats.moveSpeed = slowSpeed;
+        PlayerStats.MoveSpeed = slowSpeed;
         yield return new WaitForSeconds(speedBoostDuration);
-        PlayerStats.moveSpeed = PlayerStats.originalSpeed;
+        PlayerStats.MoveSpeed = PlayerStats.OriginalSpeed;
         speedBoostCoroutine = null;
 
         Destroy(gameObject, 1);

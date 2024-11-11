@@ -30,7 +30,7 @@ public class Item : MonoBehaviour
     public virtual void Effect()
     {
         Debug.Log($"Item {gameObject.name} 효과 발동 아싸~");
-        VisualComponentDisabled();
+        VisualComponentDisabled(false);
         used = true;
 
         PlayAudio(effectAudioClip);
@@ -39,15 +39,20 @@ public class Item : MonoBehaviour
     public virtual void SideEffect()
     {
         Debug.Log($"Item {gameObject.name} 부작용 낄낄");
-        VisualComponentDisabled();
+        VisualComponentDisabled(false);
         used = true;
         PlayAudio(sideEffectAudioClip);
     }
 
-    private void VisualComponentDisabled()
+    public void Init(){
+        used = false;
+        VisualComponentDisabled(true);
+    }
+
+    protected void VisualComponentDisabled(bool b)
     {
-        spriteRenderer.enabled = false;
-        circleCollider2D.enabled = false;
+        spriteRenderer.enabled = b;
+        circleCollider2D.enabled = b;
     }
 
 

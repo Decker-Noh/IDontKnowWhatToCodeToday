@@ -39,7 +39,8 @@ public class ItemGenerator : MonoBehaviour
             // 플레이어와 겹치지 않게 위치 확인
             if (IsPositionAvailable(randomPosition))
             {
-                var itemGameObject = Instantiate(itemPrefabsList[index], randomPosition, Quaternion.identity);
+                var itemGameObject = PoolingManager.Instantiate(itemPrefabsList[index], randomPosition, Quaternion.identity);
+                itemGameObject.GetComponent<Item>().Init();
                 generatedItemList.Add(itemGameObject);
                 spawnedPositions.Add(randomPosition);
                 spawned++;

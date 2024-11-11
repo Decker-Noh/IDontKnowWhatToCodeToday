@@ -40,7 +40,7 @@ public class Enemy : MonoBehaviour
     }
     void OnEnable()
     {
-        targetRigidbody = GameManager.Instance.player.GetComponent<Rigidbody2D>();
+        targetRigidbody = GameManager.Instance.player.rigid;
         Level = 1;
     }
 
@@ -89,14 +89,13 @@ public class Enemy : MonoBehaviour
         // }
         GameManager.Instance.player.SummonExecute(level);
         Dead();
-
-
     }
+
     void Dead()
     {
         gameObject.SetActive(false);
     }
-    // Update is called once per frame
+
     void FixedUpdate()
     {
         if (hit)
@@ -104,6 +103,12 @@ public class Enemy : MonoBehaviour
             //Debug.Log("히트요");
             return;
         }
+
+        // if(IsFarFromPlayer())
+        // {
+        //     PoolingManager.Destroy(gameObject);
+        //     return;
+        // }
 
         Vector2 dirVec = targetRigidbody.position - rigid.position;
         rigid.MovePosition(rigid.position + dirVec.normalized * speed * Time.fixedDeltaTime);
@@ -117,5 +122,15 @@ public class Enemy : MonoBehaviour
         colorRed = Mathf.Clamp(colorRed, 0, 255);
 
         spriteRenderer.color = new Color(colorRed, 0, 0, 255);
+    }
+
+    bool IsFarFromPlayer()
+    {
+        float distance = Vector2.Distance(transform.position, targetRigidbody.position);
+
+        Camera cam = Camera.main;
+        float screenWidthWorldUnits = 2f * cam.orthographicSize * cam.aspect;
+
+        return distance > screenWidthWorldUnits;
     }
 }

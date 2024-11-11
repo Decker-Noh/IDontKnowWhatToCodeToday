@@ -2,6 +2,7 @@ using UnityEngine;
 
 public class UpgradeSelection : MonoBehaviour
 {
+    public UpgradeOption option;
     public string title;
     public string description;
     public Sprite icon;

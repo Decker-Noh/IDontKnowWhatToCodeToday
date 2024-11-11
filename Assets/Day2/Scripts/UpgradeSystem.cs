@@ -1,14 +1,17 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.UI;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 
 public class UpgradeSystem : MonoBehaviour
 {
     [Header("[디버깅]")]
     public List<UpgradeSelection> canUpgradeSelectionList = new List<UpgradeSelection>();
-    public Dictionary<UpgradeSelection, int> upgradedSelectionDict = new Dictionary<UpgradeSelection, int>();
+    public Dictionary<UpgradeSelection, int>  upgradedSelectionDict = new Dictionary<UpgradeSelection, int>();
+    private Dictionary<UpgradeOption, Action> upgradeActions = new Dictionary<UpgradeOption, Action>();
     [SerializeField] List<UpgradeSelectionUI> createdUpgradeSelectionUIList = new List<UpgradeSelectionUI>();
     public bool canOpenUpgradePanel = true;
 
@@ -41,6 +44,11 @@ public class UpgradeSystem : MonoBehaviour
         Time.timeScale = 0;
 
         canUpgradeSelectionList = GetfilteredUpgrdeSelectionList(allUpgradeSelectionList);
+        if(canUpgradeSelectionList.Count <= 0)
+        {
+            EndOfUpgradeSelection();
+            return;
+        }
         var threeUpgradeSelection = GetThreeUpgradeSelection();
 
 
@@ -49,7 +57,9 @@ public class UpgradeSystem : MonoBehaviour
             CreateUpgradeSelectionUI(upgradeSelection);
         }
 
+        EventSystem.current.SetSelectedGameObject(upgradeSelectionPanel.transform.GetChild(0).gameObject);
         upgradeSelectionPanel.SetActive(true);
+        Debug.Log(EventSystem.current.currentSelectedGameObject);
 
         //TODO 업그레이드 선택지 제공
     }
@@ -62,6 +72,7 @@ public class UpgradeSystem : MonoBehaviour
 
         upgradeSelectionUI.SetUpgradeSelectionData(upgradeSelection);
         upgradeSelectionUI.OnSelectUpgrdaeSelection += OnSelectedUpgradeSelection;
+        upgradeSelectionUI.OnSelectUpgrdaeSelection += (value)=>upgradeActions[value.option].Invoke();
     }
 
 
@@ -116,6 +127,12 @@ public class UpgradeSystem : MonoBehaviour
             upgradeSelection.UpgradeEffect();
         }
 
+        EndOfUpgradeSelection();
+    }
+
+    void EndOfUpgradeSelection()
+    {
+
         foreach (var createdUpgradeSelectionUI in createdUpgradeSelectionUIList)
         {
             Destroy(createdUpgradeSelectionUI.gameObject);
@@ -144,7 +161,7 @@ public class UpgradeSystem : MonoBehaviour
             int selectedCount = 0;
             while (selectedCount < 3 && tempUpgradeSelectionList.Count > 0)
             {
-                int index = Random.Range(0, tempUpgradeSelectionList.Count);
+                int index = UnityEngine.Random.Range(0, tempUpgradeSelectionList.Count);
                 var upgradeSelection = tempUpgradeSelectionList[index];
 
                 // 선택된 아이템이 이미 리스트에 없는 경우에만 추가
@@ -164,5 +181,14 @@ public class UpgradeSystem : MonoBehaviour
         return threeUpgradeSelection;
     }
 
-
+    void Start()
+    {
+        upgradeActions = new Dictionary<UpgradeOption, Action>()
+        {
+            { UpgradeOption.Defence, () => PlayerStats.Defense++ },
+            { UpgradeOption.EatSpeed, () => PlayerStats.EatSpeed++ },
+            { UpgradeOption.MoveSpeed, () => PlayerStats.MoveSpeed++ },
+            { UpgradeOption.VisibleRange, () => PlayerStats.AddedVisibleRange++ }
+        };
+    }
 }
