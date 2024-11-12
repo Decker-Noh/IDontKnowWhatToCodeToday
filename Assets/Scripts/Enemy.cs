@@ -2,13 +2,15 @@ using System;
 using System.Collections;
 using UnityEngine;
 using TMPro;
+using Unity.VisualScripting;
 
 public class Enemy : MonoBehaviour
 {
+
     public float speed;
-    Rigidbody2D rigid;
-    Rigidbody2D targetRigidbody;
-    bool hit;
+    protected Rigidbody2D rigid;
+    protected Rigidbody2D targetRigidbody;
+    protected bool hit;
 
     private int level = 0;
 
@@ -27,9 +29,9 @@ public class Enemy : MonoBehaviour
 
     public Action<int> OnChangedLevel;
 
-    [SerializeField] TextMeshProUGUI levelText;
+    [SerializeField] protected TextMeshProUGUI levelText;
 
-    [SerializeField] SpriteRenderer spriteRenderer;
+    [SerializeField] protected SpriteRenderer spriteRenderer;
 
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -42,6 +44,7 @@ public class Enemy : MonoBehaviour
     {
         targetRigidbody = GameManager.Instance.player.rigid;
         Level = 1;
+        StartCoroutine(LifetimeProcess(20));
     }
 
 
@@ -51,6 +54,7 @@ public class Enemy : MonoBehaviour
     private void OnDisable()
     {
         targetRigidbody = null;
+        lock_lifetimeprocess = false;
     }
 
     IEnumerator KnockBack()
@@ -71,6 +75,36 @@ public class Enemy : MonoBehaviour
         hit = false;
 
 
+    }
+    public int life;
+    public bool lock_lifetimeprocess = false;
+    IEnumerator LifetimeProcess(int lifetime)
+    {
+        if(lock_lifetimeprocess == true) yield break;
+        lock_lifetimeprocess = true;
+
+        bool alive_flag = true;
+        while(alive_flag)
+        {
+            int remaining_lifetime = lifetime;
+            while (remaining_lifetime > 0)
+            {
+                life = remaining_lifetime;
+                yield return new WaitForSeconds(10);
+                remaining_lifetime -= 10;
+            }
+            
+            Vector3 playerPos = GameManager.Instance.player.transform.position;
+            Vector3 enemyPos = transform.position;
+            float diffX = playerPos.x - enemyPos.x; 
+            float diffY = playerPos.y - playerPos.y;
+            float distance = Mathf.Sqrt(diffX * diffX + diffY * diffY);
+
+            alive_flag = distance <= 20;
+        }
+        lock_lifetimeprocess = false;
+        Dead();
+        yield break;
     }
     private void OnTriggerEnter2D(Collider2D collider)
     {
@@ -93,7 +127,7 @@ public class Enemy : MonoBehaviour
 
     void Dead()
     {
-        gameObject.SetActive(false);
+        PoolingManager.Destroy(gameObject);
     }
 
     void FixedUpdate()
@@ -118,10 +152,10 @@ public class Enemy : MonoBehaviour
     void OnChangedLevelEvent(int changedLevel)
     {
         levelText.text = changedLevel.ToString();
-        var colorRed = 100 + changedLevel * 2;
-        colorRed = Mathf.Clamp(colorRed, 0, 255);
+        // var colorRed = 100 + changedLevel * 2;
+        // colorRed = Mathf.Clamp(colorRed, 0, 255);
 
-        spriteRenderer.color = new Color(colorRed, 0, 0, 255);
+        // spriteRenderer.color = new Color(colorRed, 0, 0, 255);
     }
 
     bool IsFarFromPlayer()

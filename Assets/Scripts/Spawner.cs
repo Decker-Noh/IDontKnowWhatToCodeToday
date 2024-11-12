@@ -2,10 +2,10 @@ using UnityEngine;
 
 public class Spawner : MonoBehaviour
 {
-    public GameObject enemyPrefab;
+    public GameObject[] enemyPrefab;
     public Transform[] spawnPoints;
     float timer;
-    float spawnIntervalTime = 2.5f;
+    float spawnIntervalTime = 3.5f;
 
     [SerializeField] float accumulatedTime;
 
@@ -30,7 +30,7 @@ public class Spawner : MonoBehaviour
     }
     void MonsterSpawn()
     {
-        GameObject enemyObject = PoolingManager.Instantiate(enemyPrefab);
+        GameObject enemyObject = PoolingManager.Instantiate(enemyPrefab[Random.Range(0, enemyPrefab.Length)]);
         enemyObject.transform.position = spawnPoints[Random.Range(0, spawnPoints.Length)].transform.position;
         var enemy = enemyObject.GetComponent<Enemy>();
 
