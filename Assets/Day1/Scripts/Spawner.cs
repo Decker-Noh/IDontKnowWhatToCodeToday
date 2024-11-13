@@ -6,7 +6,6 @@ public class Spawner : MonoBehaviour
     public Transform[] spawnPoints;
     float timer;
     float spawnIntervalTime = 3.5f;
-
     [SerializeField] float accumulatedTime;
 
     float levelUpInterval = 0.1f;
@@ -18,10 +17,12 @@ public class Spawner : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
+        if (GameManager.Instance.gameStateEnum != GameStateEnum.InGame) return;
         timer += Time.fixedDeltaTime;
         accumulatedTime += Time.fixedDeltaTime;
+        GameManager.Instance.GameTime = accumulatedTime;
         if (timer > spawnIntervalTime)
         {
             MonsterSpawn();
@@ -40,6 +41,8 @@ public class Spawner : MonoBehaviour
 
 
         var spawnMaxlevel = Mathf.RoundToInt(accumulatedTime * levelUpInterval);
+
+        GameManager.Instance.StageLevel = spawnMaxlevel;
 
         enemy.Level = GetWeightedLevel(spawnMaxlevel);
 

@@ -7,7 +7,11 @@ public class PoolingManager : MonoBehaviour
     private static Dictionary<string, Queue<GameObject>> poolDictionary = new Dictionary<string, Queue<GameObject>>();
     private static Dictionary<string, GameObject> parentDictionary = new Dictionary<string, GameObject>();
 
-
+    public static void PoolManagerInit()
+    {
+        poolDictionary = new Dictionary<string, Queue<GameObject>>();;
+        parentDictionary = new Dictionary<string, GameObject>();
+    }
     public static GameObject Instantiate(GameObject prefab)
     {
         return Instantiate(prefab, new Vector3(0f, 0f, 0f), Quaternion.identity);

@@ -7,3 +7,9 @@ public enum UpgradeOption
     MoveSpeed,
     VisibleRange
 }
+public enum GameStateEnum
+{
+    PreGame,
+    InGame,
+    PostGame
+}

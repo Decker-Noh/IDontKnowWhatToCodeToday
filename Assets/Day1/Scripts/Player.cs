@@ -37,6 +37,7 @@ public class Player : MonoBehaviour
         {
             if (playerLevel != value)
             {
+                Debug.Log(value);
                 playerLevel = value;
                 OnChangedLevel?.Invoke(playerLevel);
             }
@@ -70,17 +71,12 @@ public class Player : MonoBehaviour
 
     void Start()
     {
-        audioSource = GetComponent<AudioSource>();
-        rigid = GetComponent<Rigidbody2D>();
-        light2D = GetComponent<Light2D>();
-        EatAttack += () => { Debug.Log("Eat!!"); };
-        EatAttack += ManuallyAttack;
-        OnChangedLevel += OnChangedLevelEvent;
-        PlayerLevel = 1;
-
-        InitPlayerStats();
+        PreGameSettingPlayer();
+        GameManager.Instance.player = this;
+        GameManager.Instance.GameStart += StartGamePlayerInit;
+        GameManager.Instance.GameEnd += WoldSlowTime;
     }
-
+    
     void Update()
     {
         // 쿨타임 감소
@@ -106,8 +102,34 @@ public class Player : MonoBehaviour
         CheckYourAteItem();
 
     }
+    void WoldSlowTime()
+    {
+        Time.timeScale = 0.3f;
+    }
+    void PreGameSettingPlayer()
+    {
+        Time.timeScale = 1.0f;
+        eatRangeSpriteReneder.gameObject.SetActive(false);
+        levelText.gameObject.SetActive(false);
+
+        audioSource = GetComponent<AudioSource>();
+        rigid = GetComponent<Rigidbody2D>();
+        light2D = GetComponent<Light2D>();
+        EatAttack += () => { Debug.Log("Eat!!"); };
+        EatAttack += ManuallyAttack;
+        OnChangedLevel += OnChangedLevelEvent;
+    }
+    void StartGamePlayerInit()
+    {
+        eatRangeSpriteReneder.gameObject.SetActive(true);
+        levelText.gameObject.SetActive(true);
+        PlayerLevel = 1;
+        InitPlayerStats();
+    }
     void FixedUpdate()
     {
+        if(GameManager.Instance.gameStateEnum != GameStateEnum.InGame) return;
+
         Vector2 nextVec = inputVec.normalized * speed * PlayerStats.MoveSpeed * Time.fixedDeltaTime;
         rigid.MovePosition(rigid.position + nextVec);
 
@@ -329,6 +351,7 @@ public class Player : MonoBehaviour
 
     public void GetDamaged(int damage)
     {
+        if(GameManager.Instance.gameStateEnum != GameStateEnum.InGame) return;
         Debug.Log(" 으악 내 소환수들 ");
         PlayRandomDamagedSound();
         int remainingDamage = damage;
@@ -354,6 +377,10 @@ public class Player : MonoBehaviour
                 PlayerLevel -= remainingDamage;
                 remainingDamage = 0;
             }
+        }
+        if(remainingDamage > 0)
+        {
+            GameManager.Instance.GameEnd.Invoke();
         }
     }
 

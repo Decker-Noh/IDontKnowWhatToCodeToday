@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 [DisallowMultipleComponent]
 public class GameManager : MonoBehaviour
@@ -26,19 +27,36 @@ public class GameManager : MonoBehaviour
         if (instance == null)
         {
             instance = this;
-            DontDestroyOnLoad(gameObject);
+            // DontDestroyOnLoad(gameObject);
         }
         else
         {
             Destroy(gameObject);
         }
     }
+    void Start()
+    {
+        GameStart += () => gameStateEnum = GameStateEnum.InGame;
+        GameEnd += () => gameStateEnum = GameStateEnum.PostGame;
+    }
+    public void StartGame()
+    {
+        
+        GameStart.Invoke();
+    }
+    public void GoHome()
+    {
+        StopAllCoroutines();
+        PoolingManager.PoolManagerInit();
+        string currentSceneName = SceneManager.GetActiveScene().name;
+        SceneManager.LoadScene(currentSceneName);
+    }
     public Player player;
+    public float GameTime;
     public Action GameStart;
     public Action GameEnd;
     public int StageLevel;
-
-
+    public GameStateEnum gameStateEnum = GameStateEnum.PreGame;
     public int follwerCount;
 
 }

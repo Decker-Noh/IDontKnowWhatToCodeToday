@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class Reposition : MonoBehaviour
@@ -9,6 +10,8 @@ public class Reposition : MonoBehaviour
     }
     private void OnTriggerExit2D(Collider2D collision)
     {
+        try
+        {
         if (!collision.CompareTag("Area")) { return; }
         Vector3 playerPos = GameManager.Instance.player.transform.position;
         Vector3 myPos = transform.position;
@@ -33,5 +36,11 @@ public class Reposition : MonoBehaviour
                 }
                 break;
         }
+        }
+        catch (Exception ex)
+        {
+            Debug.Log("Error : " + ex);
+        }
     }
+    
 }

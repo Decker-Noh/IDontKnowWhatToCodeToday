@@ -17,7 +17,7 @@ public class ItemGenerator : MonoBehaviour
 
     private void Start()
     {
-        SpawnItems();
+        GameManager.Instance.GameStart += SpawnItems;
     }
 
     void SpawnItems()

@@ -183,6 +183,7 @@ public class UpgradeSystem : MonoBehaviour
 
     void Start()
     {
+        GameManager.Instance.upgradeSystem = this;
         upgradeActions = new Dictionary<UpgradeOption, Action>()
         {
             { UpgradeOption.Defence, () => PlayerStats.Defense++ },
