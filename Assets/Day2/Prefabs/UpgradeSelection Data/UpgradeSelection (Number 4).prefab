@@ -44,8 +44,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b0da667c9b1c64b4a9aac3b2a1ba0081, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  option: 0
   title: "\uAC70\uBD81\uC774\uC758 \uB4F1\uB531\uC9C0"
-  description: "\uC774\uB3D9\uC18D\uB3C4\uAC00 \uC601\uAD6C\uD788 \uAC10\uC18C\uD569\uB2C8\uB2E4.
-    \uBC1B\uB294 \uD53C\uD574\uB7C9\uC774 \uC544\uC8FC \uB9CE\uC774 \uAC10\uC18C\uD569\uB2C8\uB2E4."
+  description: "\uD50C\uB808\uC774\uC5B4 \uC8FC\uBA74\uC744 \uB9F4\uB3C4\uB294 \uBCF4\uD638\uB9C9\uC785\uB2C8\uB2E4.
+    \uC77C\uC815\uC2DC\uAC04\uC774 \uC9C0\uB098\uBA74 \uBCF4\uD638\uB9C9\uC774 \uD68C\uBCF5\uB429\uB2C8\uB2E4.
+    \uC5C5\uADF8\uB808\uC774\uB4DC \uD560 \uC218\uB85D \uC2E4\uB4DC \uAC1C\uC218\uAC00
+    \uC99D\uAC00\uD569\uB2C8\uB2E4."
   icon: {fileID: 6277531897611705068, guid: 4adbddc1d499a4b38b30aa8eb7f98bad, type: 3}
-  upgradeMaxCount: 3
+  upgradeMaxCount: 5

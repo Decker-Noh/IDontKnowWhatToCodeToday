@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 8090438920452501676}
   - component: {fileID: 5573849774380064131}
   m_Layer: 0
-  m_Name: UpgradeSelection (Number 2)
+  m_Name: UpgradeSelection (Number 5)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -44,8 +44,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b0da667c9b1c64b4a9aac3b2a1ba0081, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  option: 4
-  title: "\uC2E0\uC18D\uC758 \uC7A5\uD654"
-  description: "\uAE30\uBCF8 \uC774\uB3D9 \uC18D\uB3C4\uAC00 \uC99D\uAC00\uD569\uB2C8\uB2E4. "
-  icon: {fileID: -6727476621037975847, guid: 3770ddb2f03b34b41b0d3f2004924d63, type: 3}
-  upgradeMaxCount: 10
+  option: 1
+  title: "\uAC70\uBD81\uC774 \uB4F1\uB531\uC9C0 \uC7AC\uC0DD\uB960 \uC99D\uAC00"
+  description: "\uAC70\uBD81\uC774 \uB4F1\uB531\uC9C0\uAC00 \uC880 \uB354 \uBE60\uB974\uAC8C
+    \uC7AC\uC0DD\uD569\uB2C8\uB2E4."
+  icon: {fileID: 6277531897611705068, guid: 4adbddc1d499a4b38b30aa8eb7f98bad, type: 3}
+  upgradeMaxCount: 5

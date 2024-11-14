@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.UI;
 using TMPro;
 using DG.Tweening;
 using UnityEngine.Rendering.Universal;
@@ -16,16 +17,33 @@ public class Player : MonoBehaviour
     public Rigidbody2D rigid { get; private set; }
     public Light2D light2D { get; private set; }
     public RaycastHit2D[] targets;
-    public float scanRange;
     public LayerMask targetLayer;
     public List<GameObject> Summons;
-    public GameObject summonPrefab;
+    public List<GameObject> summonPrefabs;
+    private Dictionary<string, GameObject> summonsPrefabsDict = new Dictionary<string, GameObject>();
+
     public Transform summonPosition;
 
     private bool stopEating = false;
-    [SerializeField] private int AteItemCount = 0;
-    public int GetAteItemCount => AteItemCount;
-    private float lastReduceTime;
+    [SerializeField] private int ateItemCount = 0;
+    public int AteItemCount
+    {
+        get => ateItemCount;
+        set
+        {
+            if (ateItemCount != value)
+            {
+                ateItemCount = value;
+                OnChangedAteItemCount?.Invoke();
+            }
+        }
+    }
+
+    Action OnChangedAteItemCount;
+
+    public List<Image> ateItemCountImageList = new List<Image>();
+
+    private float lastReduceTime = -1;
 
 
     private int playerLevel = 0;
@@ -62,12 +80,15 @@ public class Player : MonoBehaviour
 
     [SerializeField] SpriteRenderer playerCharacterSpriteReneder;
     [SerializeField] SpriteRenderer eatRangeSpriteReneder;
+    [SerializeField] SpriteRenderer shieldSpriteReneder;
 
     bool youCanEat = true;
 
     AudioSource audioSource;
 
-
+    public ShieldGenerator shieldGenerator;
+    // 효과가 진행 중인지 체크하는 변수
+    private Coroutine speedEffectCoroutine;
 
     void Start()
     {
@@ -75,8 +96,14 @@ public class Player : MonoBehaviour
         GameManager.Instance.player = this;
         GameManager.Instance.GameStart += StartGamePlayerInit;
         GameManager.Instance.GameEnd += WoldSlowTime;
+
+
+        foreach (var summonPrefab in summonPrefabs)
+        {
+            summonsPrefabsDict.Add(summonPrefab.name, summonPrefab);
+        }
     }
-    
+
     void Update()
     {
         // 쿨타임 감소
@@ -118,17 +145,23 @@ public class Player : MonoBehaviour
         EatAttack += () => { Debug.Log("Eat!!"); };
         EatAttack += ManuallyAttack;
         OnChangedLevel += OnChangedLevelEvent;
+        PlayerStats.OnChangedEatRange += OnChangedEatRange;
+        OnChangedAteItemCount += OnChangedAteItemCountHandler;
+
     }
     void StartGamePlayerInit()
     {
         eatRangeSpriteReneder.gameObject.SetActive(true);
         levelText.gameObject.SetActive(true);
+        AteItemCountUIDeactiveAll();
         PlayerLevel = 1;
+        AteItemCount = 0;
+
         InitPlayerStats();
     }
     void FixedUpdate()
     {
-        if(GameManager.Instance.gameStateEnum != GameStateEnum.InGame) return;
+        if (GameManager.Instance.gameStateEnum != GameStateEnum.InGame) return;
 
         Vector2 nextVec = inputVec.normalized * speed * PlayerStats.MoveSpeed * Time.fixedDeltaTime;
         rigid.MovePosition(rigid.position + nextVec);
@@ -145,23 +178,23 @@ public class Player : MonoBehaviour
 
     void ManuallyAttack()
     {
-        targets = Physics2D.CircleCastAll(transform.position, scanRange, Vector2.zero, 0, targetLayer);
+        targets = Physics2D.CircleCastAll(transform.position, PlayerStats.EatRange, Vector2.zero, 0, targetLayer);
         if (targets.Length <= 0)
         {
             TryEatEffect();
             return;
-
         }
+
         attackCooldown = attackDelay;
 
         int totalLevel = 0;
 
-        List<Enemy> tempEnemyList = new List<Enemy>();
+        List<IEatable> tempAteList = new List<IEatable>();
         foreach (var target in targets)
         {
-            var enemy = target.transform.GetComponent<Enemy>();
-            tempEnemyList.Add(enemy);
-            totalLevel += enemy.Level;
+            var eatable = target.transform.GetComponent<IEatable>();
+            tempAteList.Add(eatable);
+            totalLevel += eatable.GetLevel();
         }
 
         if (totalLevel > PlayerLevel)
@@ -174,30 +207,39 @@ public class Player : MonoBehaviour
         {
             SuccessEatEffect();
 
-            foreach (var enemy in tempEnemyList)
+            foreach (var eatable in tempAteList)
             {
-                enemy.BeShallowed();
-                PlayerLevel += enemy.Level;
+                eatable.OnAteEvent();
+                PlayerLevel += eatable.GetLevel();
             }
         }
     }
-    public void SummonExecute(int level)
-    {
-        PlayRandomEatSound();
-        GameObject summonObject = PoolingManager.Instantiate(summonPrefab);
-        if (Summons.Count == 0)
-        {
-            summonObject.transform.position = transform.position;
-        }
-        else
-        {
-            summonObject.transform.position = Summons[Summons.Count - 1].transform.position;
-        }
-        summonObject.transform.parent = summonPosition;
-        Summons.Add(summonObject);
 
-        var summon = summonObject.GetComponent<Summon>();
-        summon.Level = level;
+    public void SummonExecuteByAte(int level, IEatable eatable)
+    {
+        var prefabName = eatable.GetName() + "_Summon";
+        if (summonsPrefabsDict.ContainsKey(prefabName))
+        {
+            var summonPrefab = summonsPrefabsDict[prefabName];
+            //TODO 먹은 eatable 이름과 같은 오브젝트 프리팹으로 뒤에 생성 이미지를 바꾸던가?
+            PlayRandomEatSound();
+            GameObject summonObject = PoolingManager.Instantiate(summonPrefab);
+            if (Summons.Count == 0)
+            {
+                summonObject.transform.position = transform.position;
+            }
+            else
+            {
+                summonObject.transform.position = Summons[Summons.Count - 1].transform.position;
+            }
+            summonObject.transform.parent = summonPosition;
+            Summons.Add(summonObject);
+
+            var summon = summonObject.GetComponent<Summon>();
+            summon.Level = level;
+        }
+
+
     }
 
     public void SummonArray()
@@ -240,7 +282,9 @@ public class Player : MonoBehaviour
                 else
                 {
                     item.Effect();
+
                     AteItemCount++;
+                    lastReduceTime = -1f;
                 }
             }
             else
@@ -252,28 +296,39 @@ public class Player : MonoBehaviour
 
     void CheckYourAteItem()
     {
-        //Debug.Log("얼마나 많이 먹는지 확인할꺼야!!");
 
+        // 아이템이 1개 이상일 때만 로직을 실행
         if (AteItemCount > 0)
         {
+            // 처음 아이템을 먹었을 때 시간을 기록
+            if (lastReduceTime == -1f)
+            {
+                lastReduceTime = Time.time;
+            }
+
+            // 10초가 지나면 AteItemCount를 감소시킴
             if (Time.time - lastReduceTime >= 10f)
             {
                 AteItemCount--;
-                lastReduceTime = Time.time;
+                lastReduceTime = Time.time; // 감소 후 시간을 리셋
             }
         }
+
     }
 
     void YouEatTooMuchItem()
     {
         Debug.Log("너무 많이 먹었어!!");
-        StopEatingItem();
+        StartCoroutine(StopEatingItem());
     }
 
-    void StopEatingItem()
+    IEnumerator StopEatingItem()
     {
         Debug.Log("그만 먹어!!");
         stopEating = true;
+        yield return new WaitForSeconds(3f);
+        stopEating = false;
+        AteItemCount = 0;
     }
 
     void YourEatTooManyEnemy(int penaltyCount)
@@ -283,10 +338,19 @@ public class Player : MonoBehaviour
         var startIndex = Summons.Count - penaltyCount;
         startIndex = Mathf.Clamp(startIndex, 0, Summons.Count);
 
+        var tempPenaltyCount = penaltyCount;
+        tempPenaltyCount = Mathf.Clamp(penaltyCount, 0, Summons.Count);
 
         // 뒤에서 count 개수만큼 추출
-        var byeSummonList = Summons.GetRange(startIndex, penaltyCount);
-        ChangeSummonToEnemy(byeSummonList);
+        var byeSummonList = Summons.GetRange(startIndex, tempPenaltyCount);
+
+
+        foreach (var byeSummon in byeSummonList)
+        {
+            Summons.Remove(byeSummon);
+            PoolingManager.Destroy(byeSummon);
+        }
+        //ChangeSummonToEnemy(byeSummonList);
 
     }
 
@@ -351,7 +415,9 @@ public class Player : MonoBehaviour
 
     public void GetDamaged(int damage)
     {
-        if(GameManager.Instance.gameStateEnum != GameStateEnum.InGame) return;
+        if (GameManager.Instance.gameStateEnum != GameStateEnum.InGame) return;
+
+
         Debug.Log(" 으악 내 소환수들 ");
         PlayRandomDamagedSound();
         int remainingDamage = damage;
@@ -378,7 +444,7 @@ public class Player : MonoBehaviour
                 remainingDamage = 0;
             }
         }
-        if(remainingDamage > 0)
+        if (remainingDamage > 0)
         {
             GameManager.Instance.GameEnd.Invoke();
         }
@@ -411,14 +477,14 @@ public class Player : MonoBehaviour
         PlayerStats.OriginalSpeed = speed;
         PlayerStats.OriginVisibleRange = light2D.pointLightInnerRadius;
         Debug.Log(light2D.pointLightInnerRadius);
-        PlayerStats.visibleRangeChange += ChangeVisibleRange;
+        PlayerStats.OnChangedVisibleRange += ChangeVisibleRange;
     }
 
     void ChangeVisibleRange()
     {
         Debug.Log(PlayerStats.OriginVisibleRange);
-        light2D.pointLightInnerRadius = PlayerStats.OriginVisibleRange + PlayerStats.AddedVisibleRange*.1f;
-        light2D.pointLightOuterRadius = light2D.pointLightInnerRadius*2;
+        light2D.pointLightInnerRadius = PlayerStats.OriginVisibleRange + PlayerStats.AddedVisibleRange * .1f;
+        light2D.pointLightOuterRadius = light2D.pointLightInnerRadius * 2;
     }
 
     void TryEatEffect()
@@ -434,5 +500,67 @@ public class Player : MonoBehaviour
     void FailEatEffect()
     {
         SpriteFlashEffect(eatRangeSpriteReneder, 1, 0.1f, new Color32(255, 0, 0, 100));
+    }
+
+
+
+    void OnChangedEatRange()
+    {
+        // TODO 플레이어 먹는 범위 변경
+        eatRangeSpriteReneder.transform.localScale = new Vector3(PlayerStats.EatRange, PlayerStats.EatRange, 1);
+    }
+
+    // 아이템이 효과를 적용할 때 호출되는 메서드
+    public void ApplySpeedCandyEffect(float speedIncrease, float duration)
+    {
+        // 이미 효과가 진행 중이라면 코루틴을 멈추고 다시 시작
+        if (speedEffectCoroutine != null)
+        {
+            PlayerStats.MoveSpeed = PlayerStats.OriginalSpeed;
+            StopCoroutine(speedEffectCoroutine);
+        }
+
+        speedEffectCoroutine = StartCoroutine(SpeedBoostCoroutine(speedIncrease, duration));
+    }
+
+    // 속도 증가를 위한 코루틴
+    private IEnumerator SpeedBoostCoroutine(float speedIncrease, float duration)
+    {
+        // 원래 속도 저장
+        PlayerStats.OriginalSpeed = PlayerStats.MoveSpeed;
+
+        // 이동속도 증가
+        PlayerStats.MoveSpeed *= speedIncrease;
+
+        // 효과가 지속되는 시간 동안 대기
+        yield return new WaitForSeconds(duration);
+
+        // 시간 지나면 원래 속도로 되돌리기
+        PlayerStats.MoveSpeed = PlayerStats.OriginalSpeed;
+
+        // 코루틴 종료 후
+        speedEffectCoroutine = null;
+    }
+
+
+    void AteItemCountUIDeactiveAll()
+    {
+        foreach (var ateItemImage in ateItemCountImageList)
+        {
+            ateItemImage.gameObject.SetActive(false);
+        }
+    }
+
+    // 먹은 아이템 개수가 바뀔때
+    public void OnChangedAteItemCountHandler()
+    {
+        Debug.Log($"ateItemCount:{ateItemCount}");
+        AteItemCountUIDeactiveAll();
+
+        for (int i = 0; i < AteItemCount; i++)
+        {
+            ateItemCountImageList[i].gameObject.SetActive(true);
+        }
+
     }
 }

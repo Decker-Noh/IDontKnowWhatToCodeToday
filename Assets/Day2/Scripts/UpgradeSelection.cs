@@ -8,7 +8,7 @@ public class UpgradeSelection : MonoBehaviour
     public Sprite icon;
     public int upgradeMaxCount;
 
-    public virtual void UpgradeEffect()
+    public void UpgradeEffect()
     {
         Debug.Log($"{title}가 업그레이드 되었습니다.");
     }

@@ -5,10 +5,10 @@ public class Spawner : MonoBehaviour
     public GameObject[] enemyPrefab;
     public Transform[] spawnPoints;
     float timer;
-    float spawnIntervalTime = 3.5f;
+    float spawnIntervalTime = 2f;
     [SerializeField] float accumulatedTime;
 
-    float levelUpInterval = 0.1f;
+    float levelUpInterval = 0.2f;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()

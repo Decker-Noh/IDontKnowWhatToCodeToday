@@ -22,6 +22,7 @@ public class GameManager : MonoBehaviour
 
     public UpgradeSystem upgradeSystem;
 
+    public ItemDropContainer itemDropContainer;
     void Awake()
     {
         if (instance == null)
@@ -37,11 +38,11 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         GameStart += () => gameStateEnum = GameStateEnum.InGame;
+        GameStart += () => PlayerStats.Initialize();
         GameEnd += () => gameStateEnum = GameStateEnum.PostGame;
     }
     public void StartGame()
     {
-        
         GameStart.Invoke();
     }
     public void GoHome()

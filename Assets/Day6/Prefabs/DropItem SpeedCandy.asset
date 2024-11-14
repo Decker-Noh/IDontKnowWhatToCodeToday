@@ -1,0 +1,16 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b82dcfd8880b047968bc97a4e9ac801a, type: 3}
+  m_Name: DropItem SpeedCandy
+  m_EditorClassIdentifier: 
+  itemPrefab: {fileID: 4259390561986708309, guid: 1fa5d45cff9664a348da326516ed619f, type: 3}
+  dropChance: 1

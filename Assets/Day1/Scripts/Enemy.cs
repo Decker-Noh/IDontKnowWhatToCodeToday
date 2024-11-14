@@ -2,9 +2,9 @@ using System;
 using System.Collections;
 using UnityEngine;
 using TMPro;
-using Unity.VisualScripting;
 
-public class Enemy : MonoBehaviour
+
+public class Enemy : MonoBehaviour, IEatable
 {
 
     public float speed;
@@ -30,8 +30,8 @@ public class Enemy : MonoBehaviour
     public Action<int> OnChangedLevel;
 
     [SerializeField] protected TextMeshProUGUI levelText;
-
     [SerializeField] protected SpriteRenderer spriteRenderer;
+    public float dropChance;
 
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -80,11 +80,11 @@ public class Enemy : MonoBehaviour
     public bool lock_lifetimeprocess = false;
     IEnumerator LifetimeProcess(int lifetime)
     {
-        if(lock_lifetimeprocess == true) yield break;
+        if (lock_lifetimeprocess == true) yield break;
         lock_lifetimeprocess = true;
 
         bool alive_flag = true;
-        while(alive_flag)
+        while (alive_flag)
         {
             int remaining_lifetime = lifetime;
             while (remaining_lifetime > 0)
@@ -93,10 +93,10 @@ public class Enemy : MonoBehaviour
                 yield return new WaitForSeconds(10);
                 remaining_lifetime -= 10;
             }
-            
+
             Vector3 playerPos = GameManager.Instance.player.transform.position;
             Vector3 enemyPos = transform.position;
-            float diffX = playerPos.x - enemyPos.x; 
+            float diffX = playerPos.x - enemyPos.x;
             float diffY = playerPos.y - playerPos.y;
             float distance = Mathf.Sqrt(diffX * diffX + diffY * diffY);
 
@@ -114,19 +114,38 @@ public class Enemy : MonoBehaviour
             StartCoroutine(KnockBack());
     }
 
-    public void BeShallowed()
+    private void BeShallowed()
     {
         // if (hp>30)
         // {
         //     hp -= 30;
         //     return;
         // }
-        GameManager.Instance.player.SummonExecute(level);
+        GameManager.Instance.player.SummonExecuteByAte(level, this);
         Dead();
     }
 
     void Dead()
     {
+        //TODO 아이템 드롭 확률에 따라 아이템 생성
+        //* 1. 아이템 드롭을 할 지 안 할지 먼저 드랍확률에 따라 드랍 여부 결정
+        //* 2. 마약 아이템 드랍이 결정되었다면 어떤 아이템을 드랍할지 전체 아이템 확률 리스트에 기반하여 아이템을 골라온다.
+        //* 3. 그렇게 고른 아이템을 적군이 죽은 위치에 생성한다. 
+
+        // 1. 드롭 확률에 따라 아이템 드롭 여부 결정
+        float dropRoll = UnityEngine.Random.Range(0f, 1f);  // 0과 1 사이의 랜덤 값 생성
+        if (dropRoll <= dropChance)
+        {
+            // 2. 아이템 드롭을 결정했다면, 전체 아이템 확률 리스트에서 아이템을 고른다
+            DropItemData itemToDrop = GameManager.Instance.itemDropContainer.GetItemToDrop();
+
+            if (itemToDrop != null)
+            {
+                // 3. 아이템을 적군이 죽은 위치에 생성
+                GameManager.Instance.itemDropContainer.GenerateItemAtPosition(transform.position, itemToDrop);
+            }
+        }
+
         PoolingManager.Destroy(gameObject);
     }
 
@@ -166,5 +185,20 @@ public class Enemy : MonoBehaviour
         float screenWidthWorldUnits = 2f * cam.orthographicSize * cam.aspect;
 
         return distance > screenWidthWorldUnits;
+    }
+
+    public int GetLevel()
+    {
+        return Level;
+    }
+
+    public void OnAteEvent()
+    {
+        BeShallowed();
+    }
+
+    public string GetName()
+    {
+        return gameObject.name;
     }
 }

@@ -30,6 +30,10 @@ public class Summon : Follower
     protected override void Awake()
     {
         base.Awake();
+
+        if (levelText == null)
+            levelText = GetComponentInChildren<TextMeshProUGUI>();
+
         OnChangedLevel += OnChangedLevelEvent;
     }
 

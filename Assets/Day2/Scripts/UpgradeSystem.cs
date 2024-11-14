@@ -10,7 +10,7 @@ public class UpgradeSystem : MonoBehaviour
 {
     [Header("[디버깅]")]
     public List<UpgradeSelection> canUpgradeSelectionList = new List<UpgradeSelection>();
-    public Dictionary<UpgradeSelection, int>  upgradedSelectionDict = new Dictionary<UpgradeSelection, int>();
+    public Dictionary<UpgradeSelection, int> upgradedSelectionDict = new Dictionary<UpgradeSelection, int>();
     private Dictionary<UpgradeOption, Action> upgradeActions = new Dictionary<UpgradeOption, Action>();
     [SerializeField] List<UpgradeSelectionUI> createdUpgradeSelectionUIList = new List<UpgradeSelectionUI>();
     public bool canOpenUpgradePanel = true;
@@ -21,6 +21,18 @@ public class UpgradeSystem : MonoBehaviour
     public List<UpgradeSelection> allUpgradeSelectionList = new List<UpgradeSelection>();
     [SerializeField] private GameObject upgradeSelectionUIPrefab;
     [SerializeField] GameObject upgradeSelectionPanel;
+
+
+
+
+
+    float eatSpeedPerUpgrade = 0.5f;
+    float eatRangePerUpgrade = 0.5f;
+    float moveSpeedPerUpgrade = 0.5f;
+    int shieldCountPerUpgrade = 1;
+    int shieldResenPerUpgrade = 1;
+    float visibleRangePerUpgrade = 0.5f;
+
 
 
     public int GetCurrentUpgradeCount(UpgradeSelection upgradeSelection)
@@ -44,7 +56,7 @@ public class UpgradeSystem : MonoBehaviour
         Time.timeScale = 0;
 
         canUpgradeSelectionList = GetfilteredUpgrdeSelectionList(allUpgradeSelectionList);
-        if(canUpgradeSelectionList.Count <= 0)
+        if (canUpgradeSelectionList.Count <= 0)
         {
             EndOfUpgradeSelection();
             return;
@@ -72,7 +84,7 @@ public class UpgradeSystem : MonoBehaviour
 
         upgradeSelectionUI.SetUpgradeSelectionData(upgradeSelection);
         upgradeSelectionUI.OnSelectUpgrdaeSelection += OnSelectedUpgradeSelection;
-        upgradeSelectionUI.OnSelectUpgrdaeSelection += (value)=>upgradeActions[value.option].Invoke();
+        upgradeSelectionUI.OnSelectUpgrdaeSelection += (value) => upgradeActions[value.option].Invoke();
     }
 
 
@@ -186,10 +198,18 @@ public class UpgradeSystem : MonoBehaviour
         GameManager.Instance.upgradeSystem = this;
         upgradeActions = new Dictionary<UpgradeOption, Action>()
         {
-            { UpgradeOption.Defence, () => PlayerStats.Defense++ },
-            { UpgradeOption.EatSpeed, () => PlayerStats.EatSpeed++ },
-            { UpgradeOption.MoveSpeed, () => PlayerStats.MoveSpeed++ },
-            { UpgradeOption.VisibleRange, () => PlayerStats.AddedVisibleRange++ }
+            { UpgradeOption.ShieldCount, () =>
+                PlayerStats.ShieldCount += shieldCountPerUpgrade },
+            { UpgradeOption.ShieldResenTime, () =>
+                PlayerStats.ShieldRegenTimeLevel += shieldResenPerUpgrade },
+            { UpgradeOption.EatSpeed, () =>
+                 PlayerStats.EatSpeed+= eatSpeedPerUpgrade },
+            { UpgradeOption.EatRange, () =>
+                PlayerStats.EatRange += eatRangePerUpgrade},
+            { UpgradeOption.MoveSpeed, () =>
+                PlayerStats.MoveSpeed += moveSpeedPerUpgrade },
+            { UpgradeOption.VisibleRange, () =>
+                 PlayerStats.AddedVisibleRange += visibleRangePerUpgrade }
         };
     }
 }

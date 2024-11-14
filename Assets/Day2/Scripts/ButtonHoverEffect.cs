@@ -26,7 +26,6 @@ public class ButtonHoverEffect : MonoBehaviour, IPointerEnterHandler, IPointerEx
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        Debug.Log("asdasdfasdf");
         // 버튼이 호버되었을 때 크기와 위치 변경
 
         transform.DOScale(hoverScale, animationDuration).SetEase(Ease.OutBack).SetUpdate(true);

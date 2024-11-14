@@ -2,11 +2,11 @@ using System;
 using System.Collections;
 using UnityEngine;
 using TMPro;
-public class CowardlyEnemyBullet : MonoBehaviour
+public class CowardlyEnemyBullet : MonoBehaviour, IEatable
 {
     public float speed = 7f;
     public float rotationSpeed = 1000f;
-    
+
     protected Rigidbody2D rigid;
     int lifetime = 3;
     public int life;
@@ -39,8 +39,8 @@ public class CowardlyEnemyBullet : MonoBehaviour
     }
     void OnEnable()
     {
-        speed = UnityEngine.Random.Range(5,8);
-        rotationSpeed = speed*120;
+        speed = UnityEngine.Random.Range(5, 8);
+        rotationSpeed = speed * 120;
         StartCoroutine(LifetimeProcess(lifetime));
     }
 
@@ -73,21 +73,45 @@ public class CowardlyEnemyBullet : MonoBehaviour
     {
         if (!gameObject.activeSelf)
             return;
+
+        if (collider.CompareTag("Shield"))
+        {
+            var shield = collider.GetComponent<Shield>();
+            shield.Activate();
+            Dead();
+        }
+
+
         if (collider.CompareTag("Player"))
         {
             GameManager.Instance.player.GetDamaged(level);
             Dead();
         }
-            
+
     }
 
     void Dead()
     {
+        GameManager.Instance.player.SummonExecuteByAte(level, this);
         PoolingManager.Destroy(gameObject);
     }
 
     void OnChangedLevelEvent(int changedLevel)
     {
         levelText.text = changedLevel.ToString();
+    }
+
+    public int GetLevel()
+    {
+        return level;
+    }
+
+    public void OnAteEvent()
+    {
+        Dead();
+    }
+    public string GetName()
+    {
+        return gameObject.name;
     }
 }

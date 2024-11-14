@@ -2,8 +2,10 @@ using UnityEngine;
 
 public enum UpgradeOption
 {
-    Defence,
+    ShieldCount,
+    ShieldResenTime,
     EatSpeed,
+    EatRange,
     MoveSpeed,
     VisibleRange
 }
