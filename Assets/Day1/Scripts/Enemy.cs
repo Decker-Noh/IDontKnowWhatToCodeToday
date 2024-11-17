@@ -3,10 +3,9 @@ using System.Collections;
 using UnityEngine;
 using TMPro;
 
-
 public class Enemy : MonoBehaviour, IEatable
 {
-
+    public EnemyKind enemyKind;
     public float speed;
     protected Rigidbody2D rigid;
     protected Rigidbody2D targetRigidbody;
@@ -37,14 +36,25 @@ public class Enemy : MonoBehaviour, IEatable
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Awake()
     {
+        InitAtAwake();
+    }
+    protected virtual void InitAtAwake()
+    {
+        enemyKind = EnemyKind.NONE;
         rigid = GetComponent<Rigidbody2D>();
         OnChangedLevel += OnChangedLevelEvent;
     }
+
     void OnEnable()
+    {
+        InitAtOnEnable();
+    }
+
+    protected virtual void InitAtOnEnable()
     {
         targetRigidbody = GameManager.Instance.player.rigid;
         Level = 1;
-        StartCoroutine(LifetimeProcess(20));
+        StartCoroutine(LifetimeProcess(10));
     }
 
 
@@ -52,6 +62,11 @@ public class Enemy : MonoBehaviour, IEatable
     /// This function is called when the behaviour becomes disabled or inactive.
     /// </summary>
     private void OnDisable()
+    {
+        InitAtOnDisable();
+    }
+
+    protected virtual void InitAtOnDisable()
     {
         targetRigidbody = null;
         lock_lifetimeprocess = false;
@@ -125,7 +140,7 @@ public class Enemy : MonoBehaviour, IEatable
         Dead();
     }
 
-    void Dead()
+    protected virtual void Dead()
     {
         //TODO 아이템 드롭 확률에 따라 아이템 생성
         //* 1. 아이템 드롭을 할 지 안 할지 먼저 드랍확률에 따라 드랍 여부 결정
@@ -150,6 +165,11 @@ public class Enemy : MonoBehaviour, IEatable
     }
 
     void FixedUpdate()
+    {
+        VirtualFixedUpdate();
+    }
+
+    protected virtual void VirtualFixedUpdate()
     {
         if (hit)
         {

@@ -37,6 +37,7 @@ public class GameManager : MonoBehaviour
     }
     void Start()
     {
+        Application.targetFrameRate = 60;
         GameStart += () => gameStateEnum = GameStateEnum.InGame;
         GameStart += () => PlayerStats.Initialize();
         GameEnd += () => gameStateEnum = GameStateEnum.PostGame;

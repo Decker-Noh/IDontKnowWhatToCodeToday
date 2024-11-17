@@ -46,6 +46,9 @@ public class Spawner : MonoBehaviour
 
         enemy.Level = GetWeightedLevel(spawnMaxlevel);
 
+        if(enemy.enemyKind == EnemyKind.TrackingEnemy) enemy.Level = enemy.Level * 100;
+
+
     }
 
     int GetWeightedLevel(int maxLevel)

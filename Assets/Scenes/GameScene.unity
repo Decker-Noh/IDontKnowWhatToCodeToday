@@ -51657,7 +51657,7 @@ Camera:
   far clip plane: 1000
   field of view: 34
   orthographic: 1
-  orthographic size: 6.7291665
+  orthographic size: 8.677083
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -78433,7 +78433,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1345996814}
-  m_Layer: 7
+  m_Layer: 0
   m_Name: EatRange Scaler
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -79514,6 +79514,7 @@ MonoBehaviour:
   enemyPrefab:
   - {fileID: 8805725815749399013, guid: dcc5337fb958145ae87a4bdf1f1d2c14, type: 3}
   - {fileID: 8805725815749399013, guid: cbd74e3c32ef5f840bd8d8526f2df6da, type: 3}
+  - {fileID: 8805725815749399013, guid: b4e4983b08a382246ab44cfeaa309740, type: 3}
   spawnPoints:
   - {fileID: 833731095}
   - {fileID: 372999769}
@@ -105104,7 +105105,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 1.1, y: 1.1}
+  m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
 --- !u!114 &1909444168
 MonoBehaviour:

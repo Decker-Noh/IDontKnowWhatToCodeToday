@@ -202,6 +202,7 @@ public class Player : MonoBehaviour
             //* 너무 많이 처먹었어 
             FailEatEffect();
             YourEatTooManyEnemy(totalLevel - playerLevel);
+            GetDamaged(totalLevel);
         }
         else
         {

@@ -17,7 +17,23 @@ public class CowardlyEnemy : Enemy
     bool action_flag = false, target_flag = false;
     public float distance;
 
-    void FixedUpdate()
+    protected override void InitAtAwake()
+    {
+        base.InitAtAwake();
+        enemyKind = EnemyKind.CORWARDLY;
+        
+    }
+
+    protected override void InitAtOnEnable()
+    {
+        base.InitAtOnEnable();
+        target_flag = false;
+        action_flag = false;
+        distance = float.MaxValue;
+        current_action_cooldown = 0;
+    }
+
+    protected override void VirtualFixedUpdate()
     {
         Vector3 playerPos = GameManager.Instance.player.transform.position;
         Vector3 enemyPos = transform.position;
