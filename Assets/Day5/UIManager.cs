@@ -4,11 +4,14 @@ public class UIManager : MonoBehaviour
 {
     public GameObject GameStartUI;
     public GameObject GameEndUI;
+    public RankingBoard rankingBoard;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         GameManager.Instance.GameStart += InGameUI;
         GameManager.Instance.GameEnd += PostGameUI;
+        rankingBoard.Init();
         PreGameUI();
 
     }

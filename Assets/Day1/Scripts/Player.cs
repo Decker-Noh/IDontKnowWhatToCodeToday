@@ -447,7 +447,7 @@ public class Player : MonoBehaviour
         }
         if (remainingDamage > 0)
         {
-            GameManager.Instance.GameEnd.Invoke();
+            GameManager.Instance.EndGame();
         }
     }
 

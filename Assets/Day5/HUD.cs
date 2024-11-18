@@ -2,8 +2,8 @@ using System.Collections;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
-using TMPro;
 using UnityEngine.Rendering;
+
 public class HUD : MonoBehaviour
 {
     Coroutine timerCoroutine;

@@ -44,6 +44,7 @@ public class GameManager : MonoBehaviour
     }
     public void StartGame()
     {
+        Time.timeScale = 1;
         GameStart.Invoke();
     }
     public void GoHome()
@@ -52,6 +53,10 @@ public class GameManager : MonoBehaviour
         PoolingManager.PoolManagerInit();
         string currentSceneName = SceneManager.GetActiveScene().name;
         SceneManager.LoadScene(currentSceneName);
+    }
+    public void EndGame(){
+        GameEnd.Invoke();
+        Time.timeScale = 0;
     }
     public Player player;
     public float GameTime;
