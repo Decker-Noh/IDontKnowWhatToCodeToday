@@ -54,9 +54,15 @@ public class GameManager : MonoBehaviour
         string currentSceneName = SceneManager.GetActiveScene().name;
         SceneManager.LoadScene(currentSceneName);
     }
-    public void EndGame(){
+    public void EndGame()
+    {
         GameEnd.Invoke();
         Time.timeScale = 0;
+    }
+
+    public void ExitGame()
+    {
+        Application.Quit();
     }
     public Player player;
     public float GameTime;
